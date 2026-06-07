@@ -1,12 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="bg-[#050505]">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PHOENIX // GHOST ARCHITECT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>PHOENIX // GHOST ARCHITECT — Premium Digital Atelier</title>
+    <meta name="description" content="Elevating Scottsdale aesthetic to iconic precision. We craft premium digital experiences for brands whose presence speaks for itself.">
+    <meta name="theme-color" content="#00FFC2">
+    <meta name="color-scheme" content="dark">
+    <meta property="og:title" content="PHOENIX // GHOST ARCHITECT">
+    <meta property="og:description" content="Premium digital experiences for brands that lead through presence.">
+    <meta property="og:image" content="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23050505'/%3E%3Cpath d='M20 50 L40 20 L60 50 L80 30' stroke='%2300FFC2' fill='none' stroke-width='3'/%3E%3C/svg%3E">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23050505'/%3E%3Cpath d='M8 24 L16 8 L24 24' stroke='%2300FFC2' fill='none' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,16 +22,29 @@
     <style>
         :root {
             --bg: #050505;
-            --accent: #00FFC2; /* Electric Cyan */
+            --accent: #00FFC2;
             --glass: rgba(255, 255, 255, 0.03);
         }
 
-        body {
+        html {
             background-color: var(--bg);
+        }
+
+        body {
             color: #FFFFFF;
             font-family: 'Outfit', sans-serif;
             overflow-x: hidden;
+            margin: 0;
             cursor: none;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Touch devices get default cursor */
+        @media (hover: none) and (pointer: coarse) {
+            body {
+                cursor: auto;
+            }
         }
 
         .custom-cursor {
@@ -34,12 +55,21 @@
             position: fixed;
             pointer-events: none;
             z-index: 9999;
+            will-change: transform;
+            mix-blend-mode: difference;
             transition: transform 0.1s ease;
+        }
+
+        @media (hover: none) and (pointer: coarse) {
+            .custom-cursor {
+                display: none;
+            }
         }
 
         .glass-panel {
             background: var(--glass);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 24px;
         }
@@ -58,14 +88,22 @@
             background: var(--accent);
             z-index: 10000;
             transform: translateY(100%);
+            pointer-events: none;
         }
 
         canvas#scene {
             position: fixed;
             top: 0;
             left: 0;
-            z-index: -1;
+            z-index: 1;
             opacity: 0.4;
+            pointer-events: none;
+        }
+
+        #content-wrapper {
+            position: relative;
+            z-index: 2;
+            min-height: 100vh;
         }
 
         .bento-grid {
@@ -89,226 +127,414 @@
             width: 100%;
         }
 
-        ::-webkit-scrollbar { width: 0px; }
+        ::-webkit-scrollbar {
+            width: 0px;
+            height: 0px;
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            html {
+                scroll-behavior: smooth;
+            }
+        }
+
+        /* Prevent text selection on interactive controls only */
+        button, 
+        .nav-link, 
+        a[onclick*="navigateTo"], 
+        #contact-form a,
+        #contact-form button,
+        .glass-panel a,
+        a[href="#contact"] {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Ensure all interactive elements meet minimum 44px touch target */
+        .nav-link,
+        a[href="#contact"],
+        .glass-panel a {
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
 
-    <div class="custom-cursor" id="cursor"></div>
-    <div class="page-transition" id="transition"></div>
-    
-    <canvas id="scene"></canvas>
+    <div class="custom-cursor" id="cursor" aria-hidden="true"></div>
+    <div class="page-transition" id="transition" aria-hidden="true"></div>
 
-    <!-- Navigation -->
-    <nav class="fixed top-0 w-full p-8 z-50 flex justify-between items-center mix-blend-difference">
-        <div class="text-2xl font-black tracking-tighter">PHX/GHOST</div>
-        <div class="hidden md:flex gap-12 font-semibold text-xs tracking-[0.2em] uppercase">
-            <a href="#home" class="nav-link relative py-1" onclick="navigateTo('home')">Origin</a>
-            <a href="#offering" class="nav-link relative py-1" onclick="navigateTo('offering')">Payload</a>
-            <a href="#proof" class="nav-link relative py-1" onclick="navigateTo('proof')">Forensics</a>
-            <a href="#contact" class="nav-link relative py-1" onclick="navigateTo('contact')">Extraction</a>
-        </div>
-        <button class="bg-white text-black px-6 py-2 rounded-full font-bold text-xs uppercase hover:bg-[var(--accent)] transition-colors">Contact</button>
-    </nav>
+    <canvas id="scene" aria-hidden="true"></canvas>
 
     <main id="content-wrapper">
-        
-        <!-- PAGE 1: LANDING (ORIGIN) -->
-        <section id="home" class="min-h-screen flex flex-col justify-center px-8 md:px-24">
-            <h1 class="kinetic-text text-[15vw] font-black uppercase" id="hero-text">
-                STEALTH<br><span class="text-[var(--accent)]">WEALTH</span>
+
+        <!-- Navigation – visible on all screens, touch-optimised -->
+        <nav class="fixed top-0 w-full p-4 md:p-8 z-50 flex flex-wrap items-center justify-between mix-blend-difference gap-3" role="navigation" aria-label="Main navigation">
+            <a href="#home" class="text-2xl font-black tracking-tighter no-underline text-white min-h-[44px] flex items-center" onclick="event.preventDefault(); navigateTo('home')">PHX/GHOST</a>
+            <div class="flex flex-wrap gap-3 md:gap-12 font-semibold text-xs tracking-[0.2em] uppercase items-center">
+                <a href="#home" class="nav-link relative py-2 text-white no-underline" onclick="event.preventDefault(); navigateTo('home')">Origin</a>
+                <a href="#offering" class="nav-link relative py-2 text-white no-underline" onclick="event.preventDefault(); navigateTo('offering')">Payload</a>
+                <a href="#proof" class="nav-link relative py-2 text-white no-underline" onclick="event.preventDefault(); navigateTo('proof')">Forensics</a>
+                <a href="#contact" class="nav-link relative py-2 text-white no-underline" onclick="event.preventDefault(); navigateTo('contact')">Extraction</a>
+            </div>
+            <a href="#contact" class="bg-white text-black px-6 py-3 rounded-full font-bold text-xs uppercase hover:bg-[var(--accent)] transition-colors no-underline min-h-[44px] flex items-center justify-center" onclick="event.preventDefault(); navigateTo('contact')">Contact</a>
+        </nav>
+
+        <!-- PAGE 1: ORIGIN -->
+        <section id="home" class="min-h-screen flex flex-col justify-center px-8 md:px-24 pt-32 md:pt-0">
+            <h1 class="kinetic-text text-[15vw] font-black uppercase select-text" id="hero-text">
+                REFINED<br><span class="text-[var(--accent)]">WEALTH</span>
             </h1>
-            <div class="mt-12 max-w-xl text-zinc-400 text-lg leading-relaxed">
-                Annihilating the generic Scottsdale aesthetic. We build digital monoliths for brands that don't need to shout to be heard.
+            <div class="mt-12 max-w-xl text-zinc-400 text-lg leading-relaxed font-light select-text">
+                Elevating the Scottsdale aesthetic to iconic precision. We craft premium digital experiences for brands whose presence speaks for itself.
             </div>
         </section>
 
-        <!-- PAGE 2: SERVICES (PAYLOAD) -->
+        <!-- PAGE 2: PAYLOAD -->
         <section id="offering" class="min-h-screen py-32 px-8 md:px-24">
             <div class="flex flex-col md:flex-row justify-between items-end mb-24">
-                <h2 class="text-6xl md:text-8xl font-black uppercase leading-[0.8]">THE<br>PAYLOAD</h2>
-                <p class="max-w-xs text-zinc-500 text-sm uppercase tracking-widest mt-8 md:mt-0">Pure performance. No lag. Cinematic fluid mechanics.</p>
+                <h2 class="text-6xl md:text-8xl font-black uppercase leading-[0.8] select-text">THE<br>PAYLOAD</h2>
+                <p class="max-w-xs text-zinc-500 text-sm uppercase tracking-widest mt-8 md:mt-0 select-text">Instant load. Cinematic motion with effortless precision.</p>
             </div>
 
             <div class="bento-grid">
                 <div class="col-span-12 md:col-span-8 glass-panel p-12 h-[400px] flex flex-col justify-between group overflow-hidden">
-                    <div class="text-[var(--accent)] font-bold tracking-[0.3em]">01 // ARCHITECTURE</div>
-                    <h3 class="text-5xl font-black group-hover:translate-x-4 transition-transform duration-500">KINETIC FRONT-END</h3>
-                    <p class="text-zinc-500 max-w-md">Mathematical fluid motion using trigonometry and raw physics instead of heavy libraries.</p>
+                    <div class="text-[var(--accent)] font-bold tracking-[0.3em] text-sm">01 // ARCHITECTURE</div>
+                    <h3 class="text-5xl font-black group-hover:translate-x-4 transition-transform duration-500 ease-out select-text">DYNAMIC FRONT-END</h3>
+                    <p class="text-zinc-500 max-w-md select-text">Precision motion crafted with light code and physics principles, not heavy libraries.</p>
                 </div>
                 <div class="col-span-12 md:col-span-4 glass-panel p-12 h-[400px] bg-white text-black flex flex-col justify-between">
-                    <div class="font-bold tracking-[0.3em]">02 // STRATEGY</div>
-                    <h3 class="text-4xl font-black">STEALTH SCALING</h3>
-                    <p class="opacity-60">High-conversion funnels disguised as luxury editorial experiences.</p>
+                    <div class="font-bold tracking-[0.3em] text-sm">02 // STRATEGY</div>
+                    <h3 class="text-4xl font-black select-text">SMART SCALING</h3>
+                    <p class="opacity-60 select-text">High-conversion journeys that feel like luxury editorial.</p>
                 </div>
                 <div class="col-span-12 md:col-span-4 glass-panel p-12 h-[400px] flex flex-col justify-between">
-                    <div class="text-[var(--accent)] font-bold tracking-[0.3em]">03 // VISUALS</div>
-                    <h3 class="text-4xl font-black">4D DEPTH</h3>
+                    <div class="text-[var(--accent)] font-bold tracking-[0.3em] text-sm">03 // VISUALS</div>
+                    <h3 class="text-4xl font-black select-text">4D DEPTH</h3>
+                    <p class="text-zinc-400 select-text">Parallax lighting, real-time shaders, depth of field illusions.</p>
                 </div>
                 <div class="col-span-12 md:col-span-8 glass-panel p-12 h-[400px] flex flex-col justify-between border-[var(--accent)] border-opacity-20">
-                    <div class="text-[var(--accent)] font-bold tracking-[0.3em]">04 // LOGIC</div>
-                    <h3 class="text-5xl font-black">AUTONOMOUS SYSTEMS</h3>
+                    <div class="text-[var(--accent)] font-bold tracking-[0.3em] text-sm">04 // LOGIC</div>
+                    <h3 class="text-5xl font-black select-text">AUTONOMOUS SYSTEMS</h3>
+                    <p class="text-zinc-500 max-w-md select-text">Self‑optimizing content flows, intelligent lead capture, headless commerce backbones.</p>
                 </div>
             </div>
         </section>
 
-        <!-- PAGE 3: CASE STUDY (FORENSICS) -->
+        <!-- PAGE 3: FORENSICS -->
         <section id="proof" class="min-h-screen py-32 bg-zinc-100 text-black px-8 md:px-24">
-            <span class="text-xs font-bold tracking-widest uppercase mb-4 block">Case 091 / Phoenix Sky Harbor Concept</span>
+            <span class="text-xs font-bold tracking-widest uppercase mb-4 block text-zinc-500 select-text">Case 091 / Phoenix Sky Harbor Concept</span>
             <div class="flex flex-col md:flex-row gap-12 items-start">
-                <div class="w-full md:w-1/2 overflow-hidden rounded-3xl h-[600px] bg-zinc-300">
-                    <div class="w-full h-full bg-[url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=2070')] bg-cover grayscale hover:grayscale-0 transition-all duration-1000 scale-110 hover:scale-100"></div>
+                <div class="w-full md:w-1/2 overflow-hidden rounded-3xl h-[600px] bg-zinc-300 relative">
+                    <div class="w-full h-full bg-[url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=2070')] bg-cover grayscale hover:grayscale-0 transition-all duration-1000 scale-110 hover:scale-100 absolute inset-0"></div>
                 </div>
                 <div class="w-full md:w-1/2 pt-12">
-                    <h2 class="text-7xl font-black uppercase leading-none mb-8">BRUTALIST<br>REFINEMENT</h2>
-                    <div class="space-y-6 text-xl">
-                        <p>We took a $20M real estate portfolio and stripped the digital noise. The result was a 400% increase in high-intent inquiries within 30 days.</p>
-                        <p class="text-zinc-400">Strategy: Remove the "Sell." Let the structure speak.</p>
-                        <button class="mt-8 border-b-2 border-black pb-2 font-black uppercase text-sm hover:text-[var(--accent)] hover:border-[var(--accent)] transition-all">View Full Dossier</button>
+                    <h2 class="text-7xl font-black uppercase leading-none mb-8 select-text">BRUTALIST<br>REFINEMENT</h2>
+                    <div class="space-y-6 text-xl font-light select-text">
+                        <p>We refined a $20M real estate portfolio’s digital presence, leading to a 400% increase in high‑intent inquiries within 30 days.</p>
+                        <p class="text-zinc-400">Strategy: Let the architecture speak for itself. No hard sell.</p>
+                        <a href="#" class="inline-flex items-center mt-8 border-b-2 border-black pb-2 font-black uppercase text-sm hover:text-[var(--accent)] hover:border-[var(--accent)] transition-all min-h-[44px]" onclick="event.preventDefault(); console.log('Full dossier requested')">View Full Dossier</a>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- PAGE 4: CONTACT (EXTRACTION) -->
+        <!-- PAGE 4: EXTRACTION -->
         <section id="contact" class="min-h-screen flex items-center justify-center bg-black text-white p-8">
             <div class="max-w-4xl w-full">
                 <div class="text-center mb-16">
-                    <h2 class="text-6xl md:text-9xl font-black uppercase tracking-tighter italic">READY?</h2>
+                    <h2 class="text-6xl md:text-9xl font-black uppercase tracking-tighter italic select-text">READY?</h2>
                 </div>
-                <form class="space-y-12">
+                <form id="contact-form" class="space-y-12" novalidate>
                     <div class="relative group">
-                        <input type="text" placeholder="WHO ARE YOU?" class="w-full bg-transparent border-b-2 border-zinc-800 py-6 text-2xl md:text-4xl outline-none focus:border-[var(--accent)] transition-colors uppercase font-black placeholder-zinc-800">
+                        <label for="name-input" class="sr-only">Name / identity</label>
+                        <input id="name-input" type="text" placeholder="WHO ARE YOU?" required class="w-full bg-transparent border-b-2 border-zinc-800 py-6 text-2xl md:text-4xl outline-none focus:border-[var(--accent)] transition-colors uppercase font-black placeholder:text-zinc-800 placeholder:font-black">
                     </div>
                     <div class="relative group">
-                        <input type="email" placeholder="THE FREQUENCY (EMAIL)" class="w-full bg-transparent border-b-2 border-zinc-800 py-6 text-2xl md:text-4xl outline-none focus:border-[var(--accent)] transition-colors uppercase font-black placeholder-zinc-800">
+                        <label for="email-input" class="sr-only">Email frequency</label>
+                        <input id="email-input" type="email" placeholder="THE FREQUENCY (EMAIL)" required class="w-full bg-transparent border-b-2 border-zinc-800 py-6 text-2xl md:text-4xl outline-none focus:border-[var(--accent)] transition-colors uppercase font-black placeholder:text-zinc-800 placeholder:font-black">
                     </div>
                     <div class="relative group">
-                        <textarea placeholder="THE MISSION" rows="1" class="w-full bg-transparent border-b-2 border-zinc-800 py-6 text-2xl md:text-4xl outline-none focus:border-[var(--accent)] transition-colors uppercase font-black placeholder-zinc-800 resize-none"></textarea>
+                        <label for="mission-input" class="sr-only">Mission description</label>
+                        <textarea id="mission-input" placeholder="THE MISSION" rows="1" required class="w-full bg-transparent border-b-2 border-zinc-800 py-6 text-2xl md:text-4xl outline-none focus:border-[var(--accent)] transition-colors uppercase font-black placeholder:text-zinc-800 placeholder:font-black resize-none"></textarea>
                     </div>
-                    <button class="w-full bg-[var(--accent)] text-black font-black py-8 text-2xl uppercase rounded-full hover:scale-[0.98] transition-transform">Initiate Sequence</button>
+                    <button type="submit" class="w-full bg-[var(--accent)] text-black font-black py-8 text-2xl uppercase rounded-full hover:scale-[0.98] transition-transform focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-[var(--accent)] focus:ring-offset-black">
+                        Initiate Sequence
+                    </button>
                 </form>
+                <p class="text-xs text-zinc-600 mt-8 text-center tracking-widest uppercase select-text">All transmissions encrypted. We respond within 24 hours.</p>
             </div>
         </section>
 
     </main>
 
     <script>
-        // INIT GSAP
-        gsap.registerPlugin(ScrollTrigger);
+        (function() {
+            'use strict';
 
-        // CUSTOM CURSOR
-        const cursor = document.getElementById('cursor');
-        document.addEventListener('mousemove', (e) => {
-            gsap.to(cursor, {
-                x: e.clientX,
-                y: e.clientY,
-                duration: 0.1
-            });
-        });
+            /* ---------- CUSTOM CURSOR (desktop only) ---------- */
+            const cursor = document.getElementById('cursor');
+            let cursorActive = false;
 
-        // THREE.JS SCENE (Aura Effect)
-        function initThree() {
-            const canvas = document.querySelector('#scene');
-            const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = 5;
-
-            // Simple Particle Field
-            const geo = new THREE.BufferGeometry();
-            const count = 2000;
-            const pos = new Float32Array(count * 3);
-            for(let i=0; i<count*3; i++) {
-                pos[i] = (Math.random() - 0.5) * 15;
+            function initCursor() {
+                if (window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
+                    !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    cursorActive = true;
+                    document.addEventListener('mousemove', onMouseMove);
+                    document.body.style.cursor = 'none';
+                } else {
+                    cursor.style.display = 'none';
+                    document.body.style.cursor = 'auto';
+                }
             }
-            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-            const mat = new THREE.PointsMaterial({ color: 0x00FFC2, size: 0.015 });
-            const points = new THREE.Points(geo, mat);
-            scene.add(points);
 
-            function animate() {
-                requestAnimationFrame(animate);
-                points.rotation.y += 0.001;
-                points.rotation.x += 0.0005;
-                renderer.render(scene, camera);
+            function onMouseMove(e) {
+                if (!cursorActive) return;
+                gsap.to(cursor, {
+                    x: e.clientX,
+                    y: e.clientY,
+                    duration: 0.15,
+                    overwrite: 'auto'
+                });
             }
-            animate();
 
-            window.addEventListener('resize', () => {
+            /* ---------- THREE.JS PARTICLE FIELD ---------- */
+            let renderer, scene, camera, points;
+            let animationId = null;
+            let threeInitialized = false;
+
+            function initThree() {
+                const canvas = document.querySelector('#scene');
+                if (!canvas) return;
+
+                renderer = new THREE.WebGLRenderer({
+                    canvas,
+                    alpha: true,
+                    antialias: true,
+                    powerPreference: 'high-performance'
+                });
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                renderer.setSize(window.innerWidth, window.innerHeight);
+
+                scene = new THREE.Scene();
+                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                camera.position.z = 5;
+
+                const geo = new THREE.BufferGeometry();
+                const count = 1500;
+                const pos = new Float32Array(count * 3);
+                for (let i = 0; i < count * 3; i++) {
+                    pos[i] = (Math.random() - 0.5) * 15;
+                }
+                geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+                const mat = new THREE.PointsMaterial({
+                    color: 0x00FFC2,
+                    size: 0.015,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false
+                });
+                points = new THREE.Points(geo, mat);
+                scene.add(points);
+
+                document.addEventListener('visibilitychange', onVisibilityChange);
+                window.addEventListener('resize', onWindowResize);
+
+                threeInitialized = true;
+                startAnimation();
+            }
+
+            function startAnimation() {
+                if (animationId) cancelAnimationFrame(animationId);
+                function animate() {
+                    animationId = requestAnimationFrame(animate);
+                    if (points) {
+                        points.rotation.y += 0.0008;
+                        points.rotation.x += 0.0004;
+                    }
+                    if (renderer && scene && camera) {
+                        renderer.render(scene, camera);
+                    }
+                }
+                animate();
+            }
+
+            function stopAnimation() {
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+            }
+
+            function onVisibilityChange() {
+                if (!threeInitialized) return;
+                if (document.hidden) {
+                    stopAnimation();
+                } else {
+                    startAnimation();
+                }
+            }
+
+            function onWindowResize() {
+                if (!renderer || !camera) return;
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 camera.aspect = window.innerWidth / window.innerHeight;
                 camera.updateProjectionMatrix();
-            });
-        }
+                if (typeof ScrollTrigger !== 'undefined') {
+                    ScrollTrigger.refresh();
+                }
+            }
 
-        // SCROLL ANIMATIONS
-        function initAnimations() {
-            // Hero Text Entrance
-            gsap.from("#hero-text", {
-                y: 100,
-                opacity: 0,
-                duration: 2,
-                ease: "expo.out",
-                stagger: 0.2
-            });
-
-            // Bento Panels Slide In
-            gsap.utils.toArray('.glass-panel').forEach(panel => {
-                gsap.from(panel, {
-                    scrollTrigger: {
-                        trigger: panel,
-                        start: "top bottom-=100",
-                        toggleActions: "play none none reverse"
-                    },
-                    y: 60,
+            /* ---------- SCROLL ANIMATIONS (NO HERO DISAPPEAR) ---------- */
+            function initAnimations() {
+                gsap.from("#hero-text", {
+                    y: 100,
                     opacity: 0,
-                    duration: 1.2,
-                    ease: "power4.out"
+                    duration: 2,
+                    ease: "expo.out",
                 });
-            });
 
-            // Horizontal Scroll for Sections if needed (Logic for narrative flow)
-            gsap.to("#hero-text", {
-                scrollTrigger: {
-                    trigger: "#home",
-                    start: "top top",
-                    end: "bottom top",
-                    scrub: true
-                },
-                x: -500,
-                opacity: 0
-            });
-        }
+                gsap.utils.toArray('.glass-panel').forEach((panel, i) => {
+                    gsap.from(panel, {
+                        scrollTrigger: {
+                            trigger: panel,
+                            start: "top bottom-=100",
+                            toggleActions: "play none none reverse"
+                        },
+                        y: 60,
+                        opacity: 0,
+                        duration: 1.2,
+                        delay: i * 0.1,
+                        ease: "power4.out"
+                    });
+                });
 
-        // NAVIGATION LOGIC
-        function navigateTo(targetId) {
-            const transition = document.getElementById('transition');
-            gsap.to(transition, {
-                y: "0%",
-                duration: 0.8,
-                ease: "power4.inOut",
-                onComplete: () => {
-                    document.getElementById(targetId).scrollIntoView();
-                    gsap.to(transition, {
-                        y: "-100%",
-                        duration: 0.8,
-                        delay: 0.2,
-                        ease: "power4.inOut",
+                /* Subtle horizontal shift only – keeps full visibility */
+                gsap.to("#hero-text", {
+                    scrollTrigger: {
+                        trigger: "#home",
+                        start: "top top",
+                        end: "bottom top",
+                        scrub: 0.5
+                    },
+                    x: -60,
+                    ease: "none"
+                });
+
+                ScrollTrigger.refresh();
+            }
+
+            /* ---------- PAGE TRANSITION NAVIGATION ---------- */
+            function navigateTo(targetId) {
+                const targetSection = document.getElementById(targetId);
+                if (!targetSection) return;
+
+                const transition = document.getElementById('transition');
+                const tl = gsap.timeline({
+                    onComplete: () => {
+                        targetSection.scrollIntoView({
+                            behavior: 'auto',
+                            block: 'start'
+                        });
+                        gsap.to(transition, {
+                            y: "-100%",
+                            duration: 0.7,
+                            delay: 0.15,
+                            ease: "power4.inOut",
+                            onComplete: () => {
+                                gsap.set(transition, { y: "100%" });
+                            }
+                        });
+                    }
+                });
+
+                tl.to(transition, {
+                    y: "0%",
+                    duration: 0.7,
+                    ease: "power4.inOut"
+                });
+            }
+
+            window.navigateTo = navigateTo;
+
+            /* ---------- FORM HANDLING ---------- */
+            function initForm() {
+                const form = document.getElementById('contact-form');
+                if (!form) return;
+
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const name = document.getElementById('name-input')?.value.trim();
+                    const email = document.getElementById('email-input')?.value.trim();
+                    const mission = document.getElementById('mission-input')?.value.trim();
+
+                    if (!name || !email || !mission) {
+                        gsap.fromTo(form, { scale: 1 }, {
+                            scale: 0.99,
+                            duration: 0.2,
+                            yoyo: true,
+                            repeat: 1,
+                            ease: "power2.inOut"
+                        });
+                        return;
+                    }
+
+                    const button = form.querySelector('button[type="submit"]');
+                    const originalText = button.textContent;
+                    button.textContent = 'TRANSMITTING…';
+                    button.disabled = true;
+
+                    gsap.to(button, {
+                        scale: 0.96,
+                        duration: 0.2,
+                        yoyo: true,
+                        repeat: 1,
+                        ease: "power2.out",
                         onComplete: () => {
-                            gsap.set(transition, { y: "100%" });
+                            setTimeout(() => {
+                                button.textContent = 'SEQUENCE COMPLETE';
+                                button.classList.add('bg-white', 'text-black');
+                                gsap.to(button, { scale: 1, duration: 0.3, ease: "back.out(1.5)" });
+
+                                setTimeout(() => {
+                                    button.textContent = originalText;
+                                    button.disabled = false;
+                                    button.classList.remove('bg-white', 'text-black');
+                                    form.reset();
+                                }, 3000);
+                            }, 600);
                         }
                     });
-                }
-            });
-        }
+                });
+            }
 
-        window.onload = () => {
-            initThree();
-            initAnimations();
-        };
+            /* ---------- INITIALISE ---------- */
+            window.addEventListener('DOMContentLoaded', () => {
+                initCursor();
+                initThree();
+                initAnimations();
+                initForm();
+
+                window.addEventListener('load', () => {
+                    if (typeof ScrollTrigger !== 'undefined') {
+                        ScrollTrigger.refresh();
+                    }
+                });
+
+                /* Re‑evaluate cursor on media change */
+                window.matchMedia('(hover: none), (pointer: coarse)').addEventListener('change', (e) => {
+                    if (e.matches) {
+                        cursor.style.display = 'none';
+                        document.body.style.cursor = 'auto';
+                        if (cursorActive) {
+                            document.removeEventListener('mousemove', onMouseMove);
+                            cursorActive = false;
+                        }
+                    }
+                });
+            });
+        })();
     </script>
 </body>
 </html>
