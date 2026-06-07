@@ -71,6 +71,8 @@
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 24px;
+            /* overflow hidden already present on some, applied globally for safety */
+            overflow: hidden;
         }
 
         .kinetic-text {
@@ -217,25 +219,29 @@
             </div>
 
             <div class="bento-grid">
-                <div class="col-span-12 md:col-span-8 glass-panel p-12 h-[400px] flex flex-col justify-between group overflow-hidden">
-                    <div class="text-[var(--accent)] font-bold tracking-[0.3em] text-sm">01 // DESIGN</div>
-                    <h3 class="text-5xl font-black group-hover:translate-x-4 transition-transform duration-500 ease-out select-text">VISIONARY DESIGN</h3>
-                    <p class="text-zinc-500 max-w-md select-text">Brand experiences that connect instantly with discerning buyers, built on clarity not clutter.</p>
+                <!-- Card 1 -->
+                <div class="col-span-12 md:col-span-8 glass-panel p-8 md:p-12 h-auto md:h-[400px] flex flex-col justify-between group overflow-hidden">
+                    <div class="text-[var(--accent)] font-bold tracking-[0.3em] text-xs md:text-sm">01 // DESIGN</div>
+                    <h3 class="text-4xl md:text-5xl font-black group-hover:translate-x-4 transition-transform duration-500 ease-out select-text break-words">VISIONARY DESIGN</h3>
+                    <p class="text-zinc-500 max-w-md text-sm md:text-base select-text">Brand experiences that connect instantly with discerning buyers, built on clarity not clutter.</p>
                 </div>
-                <div class="col-span-12 md:col-span-4 glass-panel p-12 h-[400px] bg-white text-black flex flex-col justify-between">
-                    <div class="font-bold tracking-[0.3em] text-sm">02 // STRATEGY</div>
-                    <h3 class="text-4xl font-black select-text">SMART GROWTH</h3>
-                    <p class="opacity-60 select-text">Expand your reach while preserving the exclusivity your buyers expect.</p>
+                <!-- Card 2 -->
+                <div class="col-span-12 md:col-span-4 glass-panel p-8 md:p-12 h-auto md:h-[400px] bg-white text-black flex flex-col justify-between">
+                    <div class="font-bold tracking-[0.3em] text-xs md:text-sm">02 // STRATEGY</div>
+                    <h3 class="text-3xl md:text-4xl font-black select-text break-words">SMART GROWTH</h3>
+                    <p class="opacity-60 text-sm md:text-base select-text">Expand your reach while preserving the exclusivity your buyers expect.</p>
                 </div>
-                <div class="col-span-12 md:col-span-4 glass-panel p-12 h-[400px] flex flex-col justify-between">
-                    <div class="text-[var(--accent)] font-bold tracking-[0.3em] text-sm">03 // EXPERIENCE</div>
-                    <h3 class="text-4xl font-black select-text">IMMERSIVE TOURS</h3>
-                    <p class="text-zinc-400 select-text">Virtual walkthroughs that bring homes to life before ground is even broken.</p>
+                <!-- Card 3 -->
+                <div class="col-span-12 md:col-span-4 glass-panel p-8 md:p-12 h-auto md:h-[400px] flex flex-col justify-between">
+                    <div class="text-[var(--accent)] font-bold tracking-[0.3em] text-xs md:text-sm">03 // EXPERIENCE</div>
+                    <h3 class="text-3xl md:text-4xl font-black select-text break-words">IMMERSIVE TOURS</h3>
+                    <p class="text-zinc-400 text-sm md:text-base select-text">Virtual walkthroughs that bring homes to life before ground is even broken.</p>
                 </div>
-                <div class="col-span-12 md:col-span-8 glass-panel p-12 h-[400px] flex flex-col justify-between border-[var(--accent)] border-opacity-20">
-                    <div class="text-[var(--accent)] font-bold tracking-[0.3em] text-sm">04 // INTEGRATION</div>
-                    <h3 class="text-5xl font-black select-text">SEAMLESS OPERATIONS</h3>
-                    <p class="text-zinc-500 max-w-md select-text">From first contact to final closing, every step connects beautifully behind the scenes.</p>
+                <!-- Card 4 -->
+                <div class="col-span-12 md:col-span-8 glass-panel p-8 md:p-12 h-auto md:h-[400px] flex flex-col justify-between border-[var(--accent)] border-opacity-20">
+                    <div class="text-[var(--accent)] font-bold tracking-[0.3em] text-xs md:text-sm">04 // INTEGRATION</div>
+                    <h3 class="text-4xl md:text-5xl font-black select-text break-words">SEAMLESS OPERATIONS</h3>
+                    <p class="text-zinc-500 max-w-md text-sm md:text-base select-text">From first contact to final closing, every step connects beautifully behind the scenes.</p>
                 </div>
             </div>
         </section>
