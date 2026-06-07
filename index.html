@@ -1,3 +1,4 @@
+<!-- ========== index.html ========== -->
 <!DOCTYPE html>
 <html lang="en" class="bg-[#050505]">
 <head>
@@ -40,7 +41,6 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Touch devices get default cursor */
         @media (hover: none) and (pointer: coarse) {
             body {
                 cursor: auto;
@@ -138,25 +138,44 @@
             }
         }
 
-        /* Prevent text selection on interactive controls only */
         button,
         .nav-link,
         a[onclick*="navigateTo"],
         #contact-form a,
         #contact-form button,
         .glass-panel a,
-        a[href="#contact"] {
+        a[href="#contact"],
+        .modal-trigger {
             user-select: none;
             -webkit-user-select: none;
         }
 
-        /* Ensure all interactive elements meet minimum 44px touch target */
         .nav-link,
         a[href="#contact"],
         .glass-panel a {
             min-height: 44px;
             display: inline-flex;
             align-items: center;
+        }
+
+        /* Modal overlay styling */
+        #contact-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9998;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        #contact-modal .modal-content {
+            max-width: 600px;
+            width: 100%;
         }
     </style>
 </head>
@@ -169,16 +188,16 @@
 
     <main id="content-wrapper">
 
-        <!-- Navigation – visible on all screens, touch-optimised -->
+        <!-- Navigation -->
         <nav class="fixed top-0 w-full p-4 md:p-8 z-50 flex flex-wrap items-center justify-between mix-blend-difference gap-3" role="navigation" aria-label="Main navigation">
             <a href="#home" class="text-2xl font-black tracking-tighter no-underline text-white min-h-[44px] flex items-center" onclick="event.preventDefault(); navigateTo('home')">SAGUARO SKY</a>
             <div class="flex flex-wrap gap-3 md:gap-12 font-semibold text-xs tracking-[0.2em] uppercase items-center">
                 <a href="#home" class="nav-link relative py-2 text-white no-underline" onclick="event.preventDefault(); navigateTo('home')">Home</a>
                 <a href="#offering" class="nav-link relative py-2 text-white no-underline" onclick="event.preventDefault(); navigateTo('offering')">Services</a>
                 <a href="#proof" class="nav-link relative py-2 text-white no-underline" onclick="event.preventDefault(); navigateTo('proof')">Portfolio</a>
-                <a href="#contact" class="nav-link relative py-2 text-white no-underline" onclick="event.preventDefault(); navigateTo('contact')">Contact</a>
+                <a href="#contact" class="nav-link relative py-2 text-white no-underline modal-trigger" onclick="event.preventDefault(); openContactModal()">Contact</a>
             </div>
-            <a href="#contact" class="bg-white text-black px-6 py-3 rounded-full font-bold text-xs uppercase hover:bg-[var(--accent)] transition-colors no-underline min-h-[44px] flex items-center justify-center" onclick="event.preventDefault(); navigateTo('contact')">Contact</a>
+            <a href="#contact" class="bg-white text-black px-6 py-3 rounded-full font-bold text-xs uppercase hover:bg-[var(--accent)] transition-colors no-underline min-h-[44px] flex items-center justify-center modal-trigger" onclick="event.preventDefault(); openContactModal()">Contact</a>
         </nav>
 
         <!-- PAGE 1: HOME -->
@@ -234,13 +253,13 @@
                     <div class="space-y-6 text-xl font-light select-text">
                         <p>We elevated a $20M estate portfolio’s brand presence, leading to a 400% increase in qualified buyer engagement within the first month.</p>
                         <p class="text-zinc-400">Strategy: Let the architecture speak for itself. No hard sell.</p>
-                        <a href="#" class="inline-flex items-center mt-8 border-b-2 border-black pb-2 font-black uppercase text-sm hover:text-[var(--accent)] hover:border-[var(--accent)] transition-all min-h-[44px]" onclick="event.preventDefault(); console.log('Full case study requested')">View Full Case Study</a>
+                        <a href="case-study.html" class="inline-flex items-center mt-8 border-b-2 border-black pb-2 font-black uppercase text-sm hover:text-[var(--accent)] hover:border-[var(--accent)] transition-all min-h-[44px]">View Full Case Study</a>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- PAGE 4: CONTACT -->
+        <!-- PAGE 4: CONTACT (in-page) -->
         <section id="contact" class="min-h-screen flex items-center justify-center bg-black text-white p-8">
             <div class="max-w-4xl w-full">
                 <div class="text-center mb-16">
@@ -267,7 +286,41 @@
             </div>
         </section>
 
+        <!-- Footer -->
+        <footer class="bg-black text-zinc-500 py-8 px-8 md:px-24 text-xs uppercase tracking-widest flex flex-wrap justify-between border-t border-zinc-900">
+            <div class="flex gap-6 flex-wrap">
+                <a href="privacy.html" class="hover:text-white transition-colors">Privacy Policy</a>
+                <a href="terms.html" class="hover:text-white transition-colors">Terms of Service</a>
+                <a href="case-study.html" class="hover:text-white transition-colors">Case Study</a>
+            </div>
+            <div class="mt-4 md:mt-0">© Saguaro Sky. All rights reserved.</div>
+        </footer>
     </main>
+
+    <!-- Contact Modal Popup -->
+    <div id="contact-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-content glass-panel bg-black/90 p-8 md:p-12 relative">
+            <button onclick="closeContactModal()" class="absolute top-4 right-4 text-white text-3xl leading-none hover:text-[var(--accent)] transition-colors" aria-label="Close">&times;</button>
+            <h2 id="modal-title" class="text-4xl md:text-5xl font-black uppercase mb-8">Let’s Talk</h2>
+            <form id="modal-contact-form" class="space-y-8" novalidate>
+                <div class="relative group">
+                    <label for="modal-name-input" class="sr-only">Your Name</label>
+                    <input id="modal-name-input" type="text" placeholder="Your Name" required class="w-full bg-transparent border-b-2 border-zinc-800 py-4 text-xl md:text-2xl outline-none focus:border-[var(--accent)] transition-colors uppercase font-black placeholder:text-zinc-800 placeholder:font-black">
+                </div>
+                <div class="relative group">
+                    <label for="modal-email-input" class="sr-only">Email Address</label>
+                    <input id="modal-email-input" type="email" placeholder="Email Address" required class="w-full bg-transparent border-b-2 border-zinc-800 py-4 text-xl md:text-2xl outline-none focus:border-[var(--accent)] transition-colors uppercase font-black placeholder:text-zinc-800 placeholder:font-black">
+                </div>
+                <div class="relative group">
+                    <label for="modal-message-input" class="sr-only">Your Message</label>
+                    <textarea id="modal-message-input" placeholder="Your Message" rows="1" required class="w-full bg-transparent border-b-2 border-zinc-800 py-4 text-xl md:text-2xl outline-none focus:border-[var(--accent)] transition-colors uppercase font-black placeholder:text-zinc-800 placeholder:font-black resize-none"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-[var(--accent)] text-black font-black py-6 text-xl uppercase rounded-full hover:scale-[0.98] transition-transform focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-[var(--accent)] focus:ring-offset-black">
+                    Send
+                </button>
+            </form>
+        </div>
+    </div>
 
     <script>
         (function() {
@@ -409,7 +462,6 @@
                     });
                 });
 
-                /* Subtle horizontal shift only – keeps full visibility */
                 gsap.to("#hero-text", {
                     scrollTrigger: {
                         trigger: "#home",
@@ -457,17 +509,55 @@
 
             window.navigateTo = navigateTo;
 
-            /* ---------- FORM HANDLING ---------- */
-            function initForm() {
-                const form = document.getElementById('contact-form');
+            /* ---------- CONTACT MODAL ---------- */
+            const modal = document.getElementById('contact-modal');
+
+            function openContactModal() {
+                if (modal) {
+                    modal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            function closeContactModal() {
+                if (modal) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = '';
+                }
+            }
+
+            window.openContactModal = openContactModal;
+            window.closeContactModal = closeContactModal;
+
+            // Close on background click
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) closeContactModal();
+                });
+            }
+
+            // Escape key closes modal
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal && modal.style.display === 'flex') {
+                    closeContactModal();
+                }
+            });
+
+            /* ---------- FORM HANDLING (in-page and modal) ---------- */
+            function handleFormSubmit(formId) {
+                const form = document.getElementById(formId);
                 if (!form) return;
 
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
 
-                    const name = document.getElementById('name-input')?.value.trim();
-                    const email = document.getElementById('email-input')?.value.trim();
-                    const message = document.getElementById('message-input')?.value.trim();
+                    const nameInput = form.querySelector('input[type="text"]');
+                    const emailInput = form.querySelector('input[type="email"]');
+                    const messageInput = form.querySelector('textarea');
+
+                    const name = nameInput ? nameInput.value.trim() : '';
+                    const email = emailInput ? emailInput.value.trim() : '';
+                    const message = messageInput ? messageInput.value.trim() : '';
 
                     if (!name || !email || !message) {
                         gsap.fromTo(form, { scale: 1 }, {
@@ -502,6 +592,10 @@
                                     button.disabled = false;
                                     button.classList.remove('bg-white', 'text-black');
                                     form.reset();
+                                    // Close modal if it was the modal form
+                                    if (formId === 'modal-contact-form') {
+                                        closeContactModal();
+                                    }
                                 }, 3000);
                             }, 600);
                         }
@@ -514,7 +608,8 @@
                 initCursor();
                 initThree();
                 initAnimations();
-                initForm();
+                handleFormSubmit('contact-form');
+                handleFormSubmit('modal-contact-form');
 
                 window.addEventListener('load', () => {
                     if (typeof ScrollTrigger !== 'undefined') {
@@ -522,7 +617,6 @@
                     }
                 });
 
-                /* Re‑evaluate cursor on media change */
                 window.matchMedia('(hover: none), (pointer: coarse)').addEventListener('change', (e) => {
                     if (e.matches) {
                         cursor.style.display = 'none';
